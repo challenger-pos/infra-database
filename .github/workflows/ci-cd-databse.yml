@@ -27,18 +27,14 @@ jobs:
         uses: hashicorp/setup-terraform@v2
 
       - name: Initialize Terraform
-        working-directory: ./terraform
         run: terraform init
 
       - name: Validate Terraform files
-        working-directory: ./terraform
         run: terraform validate
 
       - name: Plan Terraform deployment
-        working-directory: ./terraform
         run: terraform plan -out=tfplan
 
       - name: Apply Terraform deployment
         if: github.ref == 'refs/heads/main'
-        working-directory: ./terraform
         run: terraform apply -auto-approve tfplan
