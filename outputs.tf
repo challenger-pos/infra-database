@@ -34,6 +34,7 @@ output "db_name" {
 
 output "db_username" {
   value = aws_db_instance.postgres.username
+  sensitive = true
 }
 
 output "db_port" {
