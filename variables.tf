@@ -4,6 +4,22 @@
 # variable "secret_key" {
 #     description = "Secret key to AWS console"
 # }
-# variable "region" {
-#     description = "AWS region"
-# }
+
+variable "aws_region" {
+    type    = string
+    default = "us-east-2"
+}
+
+variable "db_user" {
+    type      = string
+    sensitive = true
+}
+
+variable "db_password" {
+    type      = string
+    sensitive = true
+}
+
+variable "db_name" {
+    type = string
+}

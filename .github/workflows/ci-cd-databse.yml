@@ -2,15 +2,17 @@ name: Deploy PostgreSQL RDS with Terraform
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop, 'feature/**']
   workflow_dispatch:
 
 env:
-  AWS_REGION: us-east-1
+  AWS_REGION: us-east-2
+  ENVIRONMENT: ${{ github.ref_name == 'main' && 'production' || 'develop' }}
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'main' && 'production' || 'develop' }}
 
     steps:
       - name: Checkout repository
@@ -36,5 +38,8 @@ jobs:
         run: terraform plan -out=tfplan
 
       - name: Apply Terraform deployment
-        if: github.ref == 'refs/heads/main'
         run: terraform apply -auto-approve tfplan
+        env:
+          TF_VAR_db_username: ${{ secrets.DB_USER }}
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_db_name: ${{ secrets.DB_NAME }}

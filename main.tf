@@ -26,40 +26,27 @@ terraform {
 ##############################
 # A VPC é a rede virtual onde ficarão os recursos (como RDS)
 resource "aws_vpc" "main" {
-  cidr_block = "10.0.0.0/16" # Define o bloco de IPs da rede
-}
-
-# 2️⃣ Internet Gateway
-resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.main.id
-}
-
-# 3️⃣ Route Table com acesso à internet
-resource "aws_route_table" "public_rt" {
-  vpc_id = aws_vpc.main.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.igw.id
-  }
+  cidr_block           = "10.0.0.0/16" # Define o bloco de IPs da rede
+  enable_dns_support   = true
+  enable_dns_hostnames = true
 }
 
 ########################################
 # 4. SUBNET (ONDE O BANCO VAI SER CRIADO)
 ########################################
 # Uma subnet é uma “sub-rede” dentro da VPC
-resource "aws_subnet" "public1" {
+resource "aws_subnet" "private1" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.1.0/24"
   availability_zone       = "us-east-2a"
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
 }
 
-resource "aws_subnet" "public2" {
+resource "aws_subnet" "private2" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.2.0/24"
   availability_zone       = "us-east-2b"
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
 }
 
 #############################################
@@ -69,8 +56,8 @@ resource "aws_subnet" "public2" {
 resource "aws_db_subnet_group" "rds_subnet_group" {
   name = "rds-subnet-group"
   subnet_ids = [
-    aws_subnet.public1.id,
-    aws_subnet.public2.id
+    aws_subnet.private1.id,
+    aws_subnet.private2.id
   ]
 
 }
@@ -89,7 +76,7 @@ resource "aws_security_group" "rds" {
     from_port   = 5432
     to_port     = 5432
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Atenção: expõe para internet (apenas testes)
+    cidr_blocks = [aws_vpc.main.cidr_block]
   }
 
   # Permite saída para qualquer destino
@@ -112,13 +99,11 @@ resource "aws_db_instance" "postgres" {
   engine_version         = "17"
   instance_class         = "db.t3.micro"  # Tamanho da instância (Free Tier)
   allocated_storage      = 20             # Espaço em disco (GB)
-  db_name                = "challengeone" # Nome do database inicial
-  username               = "postgres"
-  password               = "postgres123"
+  db_name                = var.db_name # Nome do database inicial
+  username               = var.db_user
+  password               = var.db_password
   publicly_accessible    = false # Permite acesso pela internet
   vpc_security_group_ids = [aws_security_group.rds.id]
   db_subnet_group_name   = aws_db_subnet_group.rds_subnet_group.name
   skip_final_snapshot    = true # Não exige snapshot ao destruir (bom para testes)
 }
-
-

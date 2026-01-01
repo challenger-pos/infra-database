@@ -1,5 +1,14 @@
-# Ignore Terraform state files
-*.tfstate*
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
 
-# Ignore local terraform working directory
+### Terraform ###
+*.tfstate
+*.tfstate*
+terraform.tfstate.backup
+*.tfvars
+terraform-provider-*.exe
+.terraform/
 .terraform/*
