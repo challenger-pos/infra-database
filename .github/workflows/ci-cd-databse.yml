@@ -37,13 +37,13 @@ jobs:
       - name: Plan Terraform deployment
         run: terraform plan -out=tfplan
         env:
-          TF_VAR_db_username: ${{ secrets.DB_USER }}
+          TF_VAR_db_user: ${{ secrets.DB_USER }}
           TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
           TF_VAR_db_name: ${{ secrets.DB_NAME }}
 
       - name: Apply Terraform deployment
         run: terraform apply -auto-approve tfplan
         env:
-          TF_VAR_db_username: ${{ secrets.DB_USER }}
+          TF_VAR_db_user: ${{ secrets.DB_USER }}
           TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
           TF_VAR_db_name: ${{ secrets.DB_NAME }}
