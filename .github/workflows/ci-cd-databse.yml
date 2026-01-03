@@ -2,7 +2,7 @@ name: Deploy PostgreSQL RDS with Terraform
 
 on:
   push:
-    branches: [main, develop, 'feature/**']
+    branches: [main, develop]
   workflow_dispatch:
 
 env:
