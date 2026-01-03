@@ -1,76 +1,129 @@
-📦 Infraestrutura AWS RDS PostgreSQL – Terraform
+# 📦 Infraestrutura AWS RDS PostgreSQL – Terraform
 
-Este repositório contém os arquivos Terraform responsáveis por provisionar e gerenciar a infraestrutura de um banco de dados PostgreSQL no Amazon RDS.
-Além disso, o projeto implementa um pipeline CI/CD no GitHub Actions, garantindo que alterações de infraestrutura sejam aplicadas automaticamente em ambientes específicos.
+Este repositório contém o código Terraform responsável por provisionar e gerenciar uma instância PostgreSQL no Amazon RDS, incluindo redes (VPC/subnets), security groups e outros recursos necessários.
 
-🚀 Objetivo do Projeto
+---
 
-O objetivo deste repositório é:
+## 🚀 Objetivo
 
-- Centralizar todo o código Terraform que provisiona um banco PostgreSQL no AWS RDS.
+- Centralizar e versionar a infraestrutura do banco de dados PostgreSQL.
+- Automatizar validações e deploys via GitHub Actions (CI/CD).
+- Fornecer passos claros para provisionar e manter a infraestrutura localmente e em pipeline.
 
-- Padronizar e automatizar o processo de deploy da infraestrutura.
+---
 
-- Garantir versionamento, rastreabilidade e segurança.
+## 📁 Estrutura do repositório
 
-- Automatizar a aplicação das mudanças de infraestrutura com base no fluxo de branches do repositório.
+- `envs/` — ambientes separados:
+  - `dev/`, `homologation/`, `production/` (cada um contém `main.tf`, `variables.tf`, `terraform.tfvars`, `backend.tf`, `outputs.tf`).
+- `modules/` — módulos reutilizáveis (vpc, rds, bastion, security-groups, etc.).
+- `README.md` — este arquivo.
 
-🏗️ Arquitetura Provisionada
+---
 
-O Terraform deste projeto provisiona, entre outros recursos:
+## ✨ Pré-requisitos
 
-- AWS RDS PostgreSQL
+- Terraform CLI (recomendado >= 1.0)
+- AWS CLI (opcional, para criar buckets/tables e validar credenciais)
+- Conta AWS com permissões para criar recursos (S3, RDS, EC2, IAM, VPC, Subnets, SecurityGroups, etc.)
+- Um bucket S3 para armazenar o _remote state_ (o projeto já contém `backend.tf` em cada ambiente apontando para S3)
 
-- Subnets privadas para o banco
+---
 
-- Security groups
+## 🔧 Configuração inicial (passo a passo)
 
-A estrutura completa pode variar conforme a configuração do projeto.
+1. **Preparar backend (S3)**
 
-🔄 Fluxo de Deploy – CI/CD (GitHub Actions)
+   - Confirme que o bucket S3 apontado em `envs/<ambiente>/backend.tf` existe (ex.: `terraform-state-bucket-challenger-19`).
+   - Recomenda-se usar uma tabela DynamoDB para locking do estado (evita alterações concorrentes):
 
-Este repositório possui um pipeline automatizado que realiza validações e deploy da infraestrutura utilizando Terraform.
+     ```bash
+     # criar bucket (exemplo)
+     aws s3 mb s3://terraform-state-bucket-challenger-19 --region us-east-2
+     ```
 
-Os deploys ocorrem de acordo com o branch:
+2. **Defina credenciais AWS**
 
-🧪 Homologação (homologation)
+   - Exportar variáveis de ambiente:
 
-- Deploy automático ao realizar merge na branch homologation.
+     ```bash
+     export AWS_ACCESS_KEY_ID=...
+     export AWS_SECRET_ACCESS_KEY=...
+     export AWS_REGION=us-east-2
+     # ou usar AWS_PROFILE
+     ```
 
-🚀 Produção (production)
+3. **Revisar variáveis**
 
-- Deploy automático ao realizar merge na branch production.
+   - Abra `envs/<ambiente>/variables.tf` e `envs/<ambiente>/terraform.tfvars` e ajuste conforme necessário (ex.: tamanho do banco, engine version, subnets, tags).
 
-📘 Principal (main)
+4. **Inicializar Terraform**
 
-- Executa o pipeline ao abrir Pull Request.
+   ```bash
+   cd infra-database/envs/production
+   terraform init
+   ```
 
-- Valida o Terraform (fmt, init, validate, plan).
+5. **Planejar**
 
-- Não executa deploy automático.
+   ```bash
+   terraform plan -out=tfplan
+   ```
 
-🔐 Secrets e Variáveis
+6. **Aplicar**
 
-As credenciais e variáveis sensíveis utilizadas pelo Terraform são fornecidas via:
+   ```bash
+   terraform apply "tfplan"
+   # ou
+   terraform apply -auto-approve
+   ```
 
-- GitHub Organization Secrets
+7. **Verificar outputs**
 
-- GitHub Organization Varialbles
+   Após o `apply`, veja os outputs (ex.: endpoint do RDS):
 
-O Terraform utiliza essas variáveis para autenticação na AWS durante o pipeline.
+   ```bash
+   terraform output
+   terraform output -json
+   ```
 
-🛠️ Pipeline – Etapas Principais
+8. **Destruir (quando necessário)**
 
-- Checkout do repositório
+   ```bash
+   terraform destroy
+   ```
 
-- Configuração do Terraform CLI
+---
 
-- terraform init
+## ✅ Arquivos e pontos importantes
 
-- terraform validate
+- `envs/<ambiente>/backend.tf` — configura o backend S3 (verifique `bucket`, `key`, `region`).
+- `envs/<ambiente>/main.tf` — entrypoint do ambiente que chama módulos.
+- `modules/rds` — módulo que provisiona o RDS (ver `variables.tf` e `outputs.tf`).
+- `outputs.tf` — expõe valores úteis (endpoint, arn, etc.).
 
-- terraform plan
+---
 
-- terraform apply (somente em branches autorizadas com deploy automático)
+## 🔄 CI/CD (GitHub Actions)
 
-O fluxo impede que mudanças quebrem a infraestrutura sem validação prévia.
+- O repositório contém pipelines que:
+  - Validam `terraform fmt`, `init`, `validate` e `plan` em PRs.
+  - Executam `apply` automaticamente ao realizar merge nas branches autorizadas (por exemplo `homologation` e `production`).
+- **Segurança**: credenciais e variáveis sensíveis devem ser fornecidas via GitHub Organization Secrets / Variables (nunca commitar credenciais no repositório).
+
+---
+
+## 🛠️ Dicas e resolução de problemas
+
+- Erro de backend: verifique se o bucket S3 e as credenciais estão corretos.
+- Permissões insuficientes: certifique-se de que a IAM role/usuário tem permissões para S3, RDS, EC2 (para subnets), VPC, IAM (se necessário).
+- Se algo falhar no `apply`, corrija o código e reexamine `terraform plan` antes de aplicar novamente.
+
+---
+
+## 🔐 Segurança e boas práticas
+
+- Não armazene credenciais no repositório.
+- Faça code review em mudanças de infraestrutura críticas (especialmente alterações em `production`).
+
+---
