@@ -34,7 +34,7 @@ resource "aws_security_group" "this" {
 resource "aws_db_instance" "this" {
   identifier        = "infra-postgres-${var.environment}"
   engine            = "postgres"
-  engine_version    = "17"
+  engine_version    = "16"
   instance_class    = "db.t3.micro"
   allocated_storage = 20
 

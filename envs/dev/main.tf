@@ -14,10 +14,11 @@ provider "aws" {
 }
 
 module "bastion" {
-  source = "../../modules/bastion"
-
-  vpc_id        = module.vpc.vpc_id
-  subnet_id     = module.vpc.public_subnet_ids[0]
+  source = "../../modules/bastion"  
+  vpc_id        = data.terraform_remote_state.infra.outputs.vpc_id
+  subnet_id     = data.terraform_remote_state.infra.outputs.subnet_id[0]
+  # vpc_id        = module.vpc.vpc_id
+  # subnet_id     = module.vpc.public_subnet_ids[0]
   my_ip         = var.my_ip
   key_pair_name = var.key_pair_name
 }
@@ -38,17 +39,22 @@ module "vpc" {
 module "security_groups" {
   source = "../../modules/security-groups"
 
-  vpc_id      = module.vpc.vpc_id
+  # vpc_id      = module.vpc.vpc_id
+  vpc_id      = data.terraform_remote_state.infra.outputs.vpc_id
   environment = "dev"
 }
 
 module "rds" {
   source = "../../modules/rds"
 
-  vpc_id     = module.vpc.vpc_id
-  subnet_ids = module.vpc.public_subnet_ids
+  # vpc_id     = module.vpc.vpc_id
+  # subnet_ids = module.vpc.public_subnet_ids
+  vpc_id     = data.terraform_remote_state.infra.outputs.vpc_id
+  subnet_ids = data.terraform_remote_state.infra.outputs.subnet_id
   allowed_sg_ids = [
     module.security_groups.lambda_sg_id,
+    data.aws_eks_cluster.eks.vpc_config[0].cluster_security_group_id, # EKS cluster security group
+    
   ]
 
   db_name     = "challengeone"
