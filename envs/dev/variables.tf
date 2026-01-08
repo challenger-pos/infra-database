@@ -1,13 +1,14 @@
-variable "access_key" {
-    description = "Access key to AWS console"
-}
-
-variable "secret_key" {
-    description = "Secret key to AWS console"
-}
+# variable "access_key" {
+#     description = "Access key to AWS console"
+# }
+#
+# variable "secret_key" {
+#     description = "Secret key to AWS console"
+# }
 
 variable "region" {
     description = "AWS region"
+  default = "us-east-2"
 }
 
 variable "my_ip" {
