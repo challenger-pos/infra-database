@@ -16,8 +16,8 @@ provider "aws" {
 module "bastion" {
   source = "../../modules/bastion"
 
-  vpc_id     = module.vpc.vpc_id
-  subnet_ids = module.vpc.public_subnet_ids
+  vpc_id        = module.vpc.vpc_id
+  subnet_id     = module.vpc.public_subnet_ids[0]
   my_ip         = var.my_ip
   key_pair_name = var.key_pair_name
 }
