@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - homologation
+      - 'feature/**'
 
 jobs:
   deploy-main:
@@ -35,7 +36,7 @@ jobs:
 
   deploy-homologation:
     name: Deploy HOMOLOGATION (automatic)
-    if: github.ref == 'refs/heads/homologation'
+    if: github.ref == 'refs/heads/homologation' || startsWith(github.ref, 'refs/heads/feature/')
     runs-on: ubuntu-latest
 
     environment:
