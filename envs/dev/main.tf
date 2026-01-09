@@ -45,8 +45,8 @@ module "security_groups" {
 module "rds" {
   source = "../../modules/rds"
 
-  vpc_id        = module.vpc.vpc_id
-  subnet_ids    = module.vpc.private_subnet_ids
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.public_subnet_ids
   allowed_sg_ids = [
     module.security_groups.lambda_sg_id,
   ]
