@@ -8,7 +8,18 @@ terraform {
 }
 
 provider "aws" {
-  region = var.region
+  region     = var.region
+  # access_key = var.access_key
+  # secret_key = var.secret_key
+}
+
+module "bastion" {
+  source = "../../modules/bastion"
+
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.public_subnet_ids
+  my_ip         = var.my_ip
+  key_pair_name = var.key_pair_name
 }
 
 module "vpc" {
