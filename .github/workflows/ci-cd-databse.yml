@@ -34,6 +34,11 @@ jobs:
           terraform init
           terraform apply -auto-approve
 
+        env:
+          TF_VAR_db_user: ${{ secrets.DB_USER }}
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_db_name: ${{ secrets.DB_NAME }}
+
   deploy-homologation:
     name: Deploy HOMOLOGATION (automatic)
     if: github.ref == 'refs/heads/homologation' || startsWith(github.ref, 'refs/heads/feature/')
@@ -58,6 +63,10 @@ jobs:
           cd envs/homologation
           terraform init
           terraform apply -auto-approve
+        env:
+          TF_VAR_db_user: ${{ secrets.DB_USER }}
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_db_name: ${{ secrets.DB_NAME }}
 
   deploy-production:
     name: Deploy PRODUCTION (automatic)
@@ -83,3 +92,8 @@ jobs:
           cd envs/production
           terraform init
           terraform apply -auto-approve
+
+        env:
+          TF_VAR_db_user: ${{ secrets.DB_USER }}
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_db_name: ${{ secrets.DB_NAME }}
