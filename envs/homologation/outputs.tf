@@ -4,6 +4,7 @@ output "rds_endpoint" {
 output "vpc_id" {
   value = module.vpc.vpc_id
 }
+
 output "rds_sg_id" {
   value = module.rds.security_group_id
 }
@@ -31,4 +32,8 @@ output "private_subnet_ids" {
 
 output "lambda_sg_id" {
   value = module.security_groups.lambda_sg_id
+}
+
+output "igw_id" {
+  value = module.vpc.igw_id
 }
