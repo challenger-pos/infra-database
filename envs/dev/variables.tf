@@ -8,6 +8,7 @@ variable "secret_key" {
 
 variable "region" {
     description = "AWS region"
+  default = "us-east-2"
 }
 
 variable "my_ip" {
