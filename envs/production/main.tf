@@ -11,10 +11,6 @@ provider "aws" {
   region = var.region
 }
 
-locals {
-  rds_allowed_sg_id = aws_security_group.app.id
-}
-
 module "vpc" {
   source = "../../modules/vpc"
 
@@ -44,21 +40,9 @@ module "rds" {
     module.security_groups.lambda_sg_id,
   ]
 
-  db_name     = "challengeone"
-  username    = "postgres"
-  password    = "postgres123"
+  db_name     = var.db_name
+  username    = var.db_user
+  password    = var.db_password
   environment = "production"
-}
-
-resource "aws_security_group" "app" {
-  name   = "app-sg-production"
-  vpc_id = module.vpc.vpc_id
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
 }
 
