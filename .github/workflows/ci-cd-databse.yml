@@ -13,7 +13,10 @@ jobs:
     runs-on: ubuntu-latest
 
     environment:
-      name: ${{ github.ref_name == 'main' && 'production' || (github.ref_name == 'homologation' && 'homologation' || 'develop') }}
+      name: ${{ github.ref_name == 'main' && 'production' || (github.ref_name == 'homologation' && 'homologation' || 'homologation') }}
+
+    env:
+      ENV_TARGET: ${{ github.ref_name == 'main' && 'production' || (github.ref_name == 'homologation' && 'homologation' || 'homologation') }}
 
     steps:
       - name: Checkout code
@@ -31,15 +34,9 @@ jobs:
 
       - name: Terraform Init and Apply
         run: |
-          if [ "${{ github.ref_name }}" == "main" ]; then
-            ENV_DIR="production"
-          else
-            ENV_DIR="${{ github.ref_name }}"
-          fi
+          echo "Efetuando deploy no ambiente: $ENV_TARGET"
           
-          echo "Efetuando deploy no ambiente: $ENV_DIR"
-          
-          cd envs/$ENV_DIR
+          cd envs/$ENV_TARGET
           terraform init
           terraform apply -auto-approve
         env:
