@@ -17,7 +17,7 @@ variable "environment" {
 
 variable "db_user" {
   type      = string
-  sensitive = true # Recomendado para segredos
+  sensitive = true
 }
 
 variable "db_password" {
