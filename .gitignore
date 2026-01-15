@@ -1,5 +1,7 @@
-# Ignore Terraform state files
-*.tfstate*
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+.crash.log
 
-# Ignore local terraform working directory
-.terraform/*
+.idea/**
