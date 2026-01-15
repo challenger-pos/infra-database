@@ -16,6 +16,7 @@ output "db_name" {
 
 output "db_username" {
   value = module.rds.username
+  sensitive = true
 }
 
 output "db_port" {
