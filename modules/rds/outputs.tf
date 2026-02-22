@@ -22,6 +22,6 @@ output "name" {
 }
 
 output "username" {
-  value = aws_db_instance.this.username
+  value     = aws_db_instance.this.username
   sensitive = true
 }
