@@ -1,30 +1,34 @@
 variable "region" {
-    description = "AWS region"
-  default = "us-east-2"
-}
-
-variable "my_ip" {
-  type = string
-}
-
-variable "key_pair_name" {
-  type = string
+  description = "AWS region"
+  type        = string
+  default     = "us-east-2"
 }
 
 variable "environment" {
-  type = string
+  description = "Environment name"
+  type        = string
+  default     = "dev"
+}
+
+variable "project_name" {
+  description = "Project name"
+  type        = string
+  default     = "challengeone"
 }
 
 variable "db_user" {
-  type      = string
-  sensitive = true
+  description = "Database master username"
+  type        = string
+  sensitive   = true
 }
 
 variable "db_password" {
-  type      = string
-  sensitive = true
+  description = "Database master password"
+  type        = string
+  sensitive   = true
 }
 
 variable "db_name" {
-  type = string
+  description = "Database name"
+  type        = string
 }
