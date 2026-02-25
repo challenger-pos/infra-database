@@ -1,40 +1,35 @@
 output "rds_endpoint" {
-  value = module.rds.endpoint
+  description = "RDS endpoint (host:port)"
+  value       = module.rds.endpoint
 }
 
 output "rds_endpoint_host" {
-  value = module.rds.endpoint_host
+  description = "RDS endpoint hostname only"
+  value       = module.rds.endpoint_host
+}
+
+output "rds_port" {
+  description = "RDS port"
+  value       = module.rds.port
 }
 
 output "db_name" {
-  value = module.rds.name
+  description = "Database name"
+  value       = module.rds.name
 }
 
 output "db_username" {
-  value = module.rds.username
-  sensitive = true
+  description = "Database username"
+  value       = module.rds.username
+  sensitive   = true
 }
 
-output "db_port" {
-  value = module.rds.port
+output "rds_security_group_id" {
+  description = "RDS security group ID"
+  value       = module.rds.security_group_id
 }
 
-output "private_subnet_ids" {
-  value = module.vpc.private_subnet_ids
-}
-
-output "vpc_id" {
-  value = module.vpc.vpc_id
-}
-
-output "lambda_sg_id" {
-  value = module.security_groups.lambda_sg_id
-}
-
-output "igw_id" {
-  value = module.vpc.igw_id
-}
-
-output "rds_sg_id" {
-  value = module.rds.security_group_id
+output "lambda_security_group_id" {
+  description = "Lambda security group ID"
+  value       = module.security_groups.lambda_sg_id
 }

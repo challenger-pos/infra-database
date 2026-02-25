@@ -9,39 +9,56 @@ terraform {
 
 provider "aws" {
   region = var.region
+
+  default_tags {
+    tags = {
+      Environment = var.environment
+      ManagedBy   = "Terraform"
+      Repository  = "infra-database"
+      Project     = var.project_name
+    }
+  }
 }
 
-module "vpc" {
-  source = "../../modules/vpc"
+# Consome VPC do infra-networking
+data "terraform_remote_state" "networking" {
+  backend = "s3"
+  config = {
+    bucket = "tf-state-challenge-bucket"
+    # key    = "v4/networking/${var.environment}/terraform.tfstate"
+    key    = "v4/networking/homologation/terraform.tfstate"
+    region = "us-east-2"
+  }
+}
 
-  cidr_block = "10.0.0.0/16"
-
-  public_subnets     = ["10.0.1.0/24", "10.0.2.0/24"]
-  availability_zones = ["us-east-2a", "us-east-2b"]
-
-  private_subnets = ["10.0.101.0/24", "10.0.102.0/24"]
-  private_azs     = ["us-east-2a", "us-east-2b"]
-  environment = "homologation"
+# Consome EKS para permitir acesso
+data "terraform_remote_state" "eks" {
+  backend = "s3"
+  config = {
+    bucket = "tf-state-challenge-bucket"
+    key    = "v4/kubernetes/homologation/terraform.tfstate"
+    region = "us-east-2"
+  }
 }
 
 module "security_groups" {
-  source = "../../modules/security-groups"
-
-  vpc_id     = module.vpc.vpc_id
-  environment = "homologation"
+  source      = "../../modules/security-groups"
+  vpc_id      = data.terraform_remote_state.networking.outputs.vpc_id
+  environment = var.environment
 }
 
 module "rds" {
   source = "../../modules/rds"
 
-  vpc_id        = module.vpc.vpc_id
-  subnet_ids    = module.vpc.private_subnet_ids
+  vpc_id     = data.terraform_remote_state.networking.outputs.vpc_id
+  subnet_ids = data.terraform_remote_state.networking.outputs.private_db_subnet_ids
   allowed_sg_ids = [
     module.security_groups.lambda_sg_id,
-    ]
+    data.terraform_remote_state.eks.outputs.cluster_security_group_id,
+  ]
 
   db_name     = var.db_name
   username    = var.db_user
   password    = var.db_password
-  environment = "homologation"
+  environment = var.environment
 }

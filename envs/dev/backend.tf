@@ -1,7 +1,7 @@
 terraform {
   backend "s3" {
     bucket       = "tf-state-challenge-bucket"
-    key          = "rds/develop/terraform.tfstate"
+    key          = "v4/rds-os/dev/terraform.tfstate"
     region       = "us-east-2"
     use_lockfile = true
     encrypt      = true
